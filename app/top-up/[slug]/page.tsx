@@ -1,10 +1,28 @@
 "use client";
 
-import { useState, useMemo, use } from "react";
+import { useState, useMemo, use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, notFound } from "next/navigation";
-import { getAllGames, getGame, rupiah, type Game } from "@/lib/games";
+import { rupiah } from "@/lib/games";
 import SiteShell from "@/components/SiteShell";
+
+type GameData = {
+  slug: string;
+  name: string;
+  publisher: string;
+  cover: string;
+  banner: string;
+  shortDesc: string;
+  longDesc: string[];
+  fields: { id: string; label: string; placeholder: string; zone?: boolean }[];
+  tags: string;
+  minPrice: number;
+  badge?: { text: string; cls: string };
+  rating?: number;
+  ratingCount?: string;
+  denominations: { id: string; amount: string; bonus?: string; price: number; popular?: boolean }[];
+  paymentCategories: any[];
+};
 
 const steps = [
   "Masukkan Data Akun",
@@ -21,13 +39,39 @@ export default function TopUpDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const game = getGame(slug);
+  const [game, setGame] = useState<GameData | null>(null);
+  const [allGames, setAllGames] = useState<GameData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/games").then((r) => r.json()),
+      fetch(`/api/payment-methods`).then((r) => r.json()),
+    ]).then(([gamesData, payData]) => {
+      const games = gamesData.games || [];
+      const found = games.find((g: GameData) => g.slug === slug);
+      setAllGames(games);
+      setGame(found || null);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <SiteShell>
+        <section className="wrap py-20 text-center" style={{ color: "var(--muted)" }}>
+          Loading...
+        </section>
+      </SiteShell>
+    );
+  }
+
   if (!game) notFound();
 
-  return <DetailClient game={game} />;
+  return <DetailClient game={game} allGames={allGames} />;
 }
 
-function DetailClient({ game }: { game: Game }) {
+function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[] }) {
   const router = useRouter();
   const [userId, setUserId] = useState("");
   const [zoneId, setZoneId] = useState("");
@@ -36,6 +80,14 @@ function DetailClient({ game }: { game: Game }) {
   const [payMethod, setPayMethod] = useState("qris");
   const [promo, setPromo] = useState("");
   const [acc, setAcc] = useState<Acc | null>(null);
+  const [payCategories, setPayCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/payment-methods")
+      .then((r) => r.json())
+      .then((data) => setPayCategories(data.categories || []))
+      .catch(() => {});
+  }, []);
 
   const denom = useMemo(
     () => game.denominations.find((d) => d.id === selectedDenom),
@@ -44,8 +96,8 @@ function DetailClient({ game }: { game: Game }) {
 
   const total = denom ? denom.price : 0;
 
-  const cat = game.paymentCategories.find((c) => c.key === payCat);
-  const methodLabel = cat?.methods.find((m) => m.id === payMethod)?.label;
+  const cat = payCategories.find((c) => c.key === payCat);
+  const methodLabel = cat?.methods.find((m: any) => m.id === payMethod)?.label;
 
   const validateStep1 = () => {
     if (!userId.trim()) {
@@ -233,7 +285,7 @@ function DetailClient({ game }: { game: Game }) {
             {/* STEP 3 */}
             <StepCard idx={2} title={steps[2]}>
               <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2.5">
-                {game.paymentCategories.map((c) => (
+                {payCategories.map((c) => (
                   <button
                     key={c.key}
                     onClick={() => {
@@ -248,7 +300,7 @@ function DetailClient({ game }: { game: Game }) {
                 ))}
               </div>
               <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2.5">
-                {cat?.methods.map((m) => (
+                {cat?.methods.map((m: any) => (
                   <button
                     key={m.id}
                     onClick={() => setPayMethod(m.id)}
@@ -529,7 +581,7 @@ function DetailClient({ game }: { game: Game }) {
           Top Up Game Lainnya
         </h2>
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {getAllGames()
+          {allGames
             .filter((g) => g.slug !== game.slug)
             .map((g) => (
               <Link

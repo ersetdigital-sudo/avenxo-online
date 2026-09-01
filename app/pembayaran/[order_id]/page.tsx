@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { use } from "react";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
-import { rupiah, getGame } from "@/lib/games";
+import { rupiah } from "@/lib/games";
 
 type OrderData = {
   orderId: string;
@@ -62,14 +62,32 @@ export default function PembayaranPage({
   const router = useRouter();
   const order = parseOrder(search);
   const [copied, setCopied] = useState(false);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [timeoutMin, setTimeoutMin] = useState(TIMER_MINUTES);
+
+  useEffect(() => {
+    fetch("/api/settings").then((r) => r.json()).then((d) => {
+      const m = parseInt(d.settings?.payment_timeout_minutes);
+      if (m > 0) setTimeoutMin(m);
+    }).catch(() => {});
+    fetch("/api/payment-methods").then((r) => r.json()).then((d) => {
+      for (const cat of d.categories || []) {
+        for (const m of cat.methods || []) {
+          if (m.methodId === "qris" && m.qrImageUrl) {
+            setQrUrl(m.qrImageUrl);
+          }
+        }
+      }
+    }).catch(() => {});
+  }, []);
 
   const secondsLeft = useMemo(() => {
     if (!order) return 0;
     const elapsed = Math.floor(
       (Date.now() - new Date(order.createdAt).getTime()) / 1000
     );
-    return Math.max(0, TIMER_MINUTES * 60 - elapsed);
-  }, [order]);
+    return Math.max(0, timeoutMin * 60 - elapsed);
+  }, [order, timeoutMin]);
 
   const [remaining, setRemaining] = useState(secondsLeft);
 
@@ -208,6 +226,7 @@ export default function PembayaranPage({
                 total={order.total}
                 copied={copied}
                 onCopy={handleCopy}
+                qrUrl={qrUrl}
               />
             </div>
           </div>
@@ -301,6 +320,7 @@ function PaymentInstruction({
   total,
   copied,
   onCopy,
+  qrUrl,
 }: {
   methodId: string;
   methodLabel: string;
@@ -308,6 +328,7 @@ function PaymentInstruction({
   total: number;
   copied: boolean;
   onCopy: (t: string) => void;
+  qrUrl: string | null;
 }) {
   const [tab, setTab] = useState(methodId);
 
@@ -321,7 +342,7 @@ function PaymentInstruction({
               className="inline-block rounded-2xl p-4"
               style={{ background: "#fff", padding: "16px" }}
             >
-              <img src={PLACEHOLDER_QR} alt="QRIS Code" className="w-[200px] h-[200px]" />
+              <img src={qrUrl || PLACEHOLDER_QR} alt="QRIS Code" className="w-[200px] h-[200px]" />
             </div>
             <p className="mt-3 text-[13px]" style={{ color: "var(--muted)" }}>
               Scan kode QR ini menggunakan aplikasi e-wallet atau mobile banking kamu.
