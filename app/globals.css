@@ -500,8 +500,14 @@ h3,
 @media (max-width: 767.98px) {
   .pay-method {
     min-height: 52px;
-    justify-content: space-between;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
     padding: 13px 16px;
+  }
+  .pay-method > span:last-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .pay-tab {
     padding: 8px 16px;
