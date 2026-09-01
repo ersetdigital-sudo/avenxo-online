@@ -215,7 +215,7 @@ function DetailClient({ game }: { game: Game }) {
 
             {/* STEP 3 */}
             <StepCard idx={2} title={steps[2]}>
-              <div className="flex gap-2 overflow-x-auto noscroll -mx-1 px-1 pb-2">
+              <div className="flex gap-2 overflow-x-auto noscroll snap-x snap-mandatory -mx-2 pl-2 pr-4 pb-2">
                 {game.paymentCategories.map((c) => (
                   <button
                     key={c.key}
@@ -223,14 +223,14 @@ function DetailClient({ game }: { game: Game }) {
                       setPayCat(c.key);
                       setPayMethod(c.methods[0].id);
                     }}
-                    className="pay-tab"
+                    className="pay-tab shrink-0 snap-start"
                     data-selected={payCat === c.key}
                   >
                     {c.label}
                   </button>
                 ))}
               </div>
-              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2.5">
                 {cat?.methods.map((m) => (
                   <button
                     key={m.id}
