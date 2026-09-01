@@ -16,14 +16,10 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    const start = Date.now();
-
     const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
-    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
     if (authError) {
       setError("Email atau password salah.");
@@ -31,8 +27,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.push("/admin/produk");
-    router.refresh();
+    window.location.href = "/admin/produk";
   };
 
   return (
