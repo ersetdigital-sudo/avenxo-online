@@ -81,6 +81,7 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
   const [promo, setPromo] = useState("");
   const [acc, setAcc] = useState<Acc | null>(null);
   const [payCategories, setPayCategories] = useState<any[]>([]);
+  const [buying, setBuying] = useState(false);
 
   useEffect(() => {
     fetch("/api/payment-methods")
@@ -136,6 +137,8 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
       setAcc({ type: "error", msg: "Pilih metode pembayaran dulu." });
       return;
     }
+
+    setBuying(true);
 
     const orderId = `AVX-${Date.now().toString(36).toUpperCase()}`;
     const orderData = {
@@ -500,9 +503,17 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
               <div className="sticky-buy-bar">
                 <button
                   onClick={buy}
-                  className="btn-primary w-full py-3.5 text-[14.5px]"
+                  disabled={buying}
+                  className="btn-primary w-full py-3.5 text-[14.5px] flex items-center justify-center gap-2"
+                  style={{ opacity: buying ? 0.7 : 1 }}
                 >
-                  Beli Sekarang
+                  {buying && (
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  )}
+                  {buying ? "Memproses..." : "Beli Sekarang"}
                 </button>
               </div>
               <Link
