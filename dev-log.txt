@@ -1,0 +1,44 @@
+▲ Next.js 16.3.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.105:3000
+✓ Ready in 350ms
+✓ Running next.config.ts took 24ms
+
+ GET /top-up/mobile-legends 200 in 677ms (next.js: 535ms, application-code: 142ms)
+ GET /top-up/mobile-legends 200 in 47ms (next.js: 11ms, application-code: 36ms)
+ GET /top-up/mobile-legends 200 in 38ms (next.js: 7ms, application-code: 31ms)
+ GET /top-up/mobile-legends 200 in 47ms (next.js: 10ms, application-code: 38ms)
+ GET /top-up/mobile-legends 200 in 42ms (next.js: 10ms, application-code: 32ms)
+ GET /top-up/mobile-legends 200 in 78ms (next.js: 18ms, application-code: 60ms)
+ GET /top-up/mobile-legends 200 in 86ms (next.js: 19ms, application-code: 67ms)
+ GET /top-up/mobile-legends 200 in 72ms (next.js: 13ms, application-code: 59ms)
+ GET /top-up/mobile-legends 200 in 130ms (next.js: 12ms, application-code: 118ms)
+ GET /top-up/mobile-legends 200 in 77ms (next.js: 14ms, application-code: 63ms)
+ GET /top-up/mobile-legends 200 in 94ms (next.js: 17ms, application-code: 77ms)
+ GET /top-up/mobile-legends 200 in 67ms (next.js: 12ms, application-code: 55ms)
+ GET /top-up/mobile-legends 200 in 72ms (next.js: 12ms, application-code: 60ms)
+ GET /top-up/mobile-legends 200 in 109ms (next.js: 23ms, application-code: 86ms)
+ GET /top-up/mobile-legends 200 in 39ms (next.js: 8ms, application-code: 30ms)
+  Reload env: .env.local
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Compiled in 4ms
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.3.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.105:3000
+- Environments: .env.local
+✓ Ready in 337ms
+✓ Running next.config.ts took 30ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+  Reload env: .env.local
