@@ -53,7 +53,7 @@ export default function Header() {
               Top Up Game
             </a>
             <a
-              href="#bantuan"
+              href="/bantuan"
               className="px-3 py-2 rounded-lg hover:text-white transition"
             >
               Bantuan
@@ -176,11 +176,8 @@ export default function Header() {
             Top Up Game
           </a>
           <a
-            href="#bantuan"
-            onClick={() => {
-              setOpen(false);
-              document.getElementById("bantuan")?.scrollIntoView({ behavior: "smooth" });
-            }}
+            href="/bantuan"
+            onClick={() => setOpen(false)}
             className="px-3 py-2.5 rounded-xl"
             style={{ background: "var(--surface-2)" }}
           >
