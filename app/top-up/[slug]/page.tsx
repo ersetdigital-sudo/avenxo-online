@@ -83,13 +83,13 @@ function DetailClient({ game }: { game: Game }) {
         style={{ paddingBottom: 0 }}
       >
         <div
-          className="relative rounded-[22px] overflow-hidden h-[220px] sm:h-[260px] md:h-[300px]"
+          className="relative rounded-[22px] overflow-hidden h-[280px] sm:h-[320px] md:h-[360px]"
           style={{ border: "1px solid var(--line)" }}
         >
           <img
             src={game.banner}
             alt={`Banner ${game.name} — top up di AVENXO ONLINE`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
           />
           <div
             className="absolute inset-0"
