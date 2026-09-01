@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -11,24 +11,23 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
-
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    setError("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
-    if (authError) {
+    if (error) {
       setError("Email atau password salah.");
       setLoading(false);
       return;
     }
-
-    window.location.href = "/admin/produk";
-  };
+    router.push("/admin/produk");
+    router.refresh();
+  }
 
   return (
     <div
@@ -60,7 +59,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label
               className="block text-[12.5px] font-semibold mb-1.5"

@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get("status");
   const q = req.nextUrl.searchParams.get("q");
 
-  let query = supabaseAdmin
+  const supabase = createServiceClient();
+
+  let query = supabase
     .from("orders")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false });
@@ -20,16 +22,15 @@ export async function GET(req: NextRequest) {
   const { data, error, count } = await query.limit(200);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Stats
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
   const [todayRes, pendingRes, todayRevRes, monthRevRes] = await Promise.all([
-    supabaseAdmin.from("orders").select("id", { count: "exact", head: true }).gte("created_at", todayStart),
-    supabaseAdmin.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabaseAdmin.from("orders").select("total").gte("created_at", todayStart),
-    supabaseAdmin.from("orders").select("total").gte("created_at", monthStart),
+    supabase.from("orders").select("id", { count: "exact", head: true }).gte("created_at", todayStart),
+    supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("orders").select("total").gte("created_at", todayStart),
+    supabase.from("orders").select("total").gte("created_at", monthStart),
   ]);
 
   const todayRevenue = (todayRevRes.data || []).reduce((sum: number, o: any) => sum + (o.total || 0), 0);
@@ -51,7 +52,8 @@ export async function PUT(req: NextRequest) {
   const { id, status } = body;
   if (!id || !status) return NextResponse.json({ error: "id and status required" }, { status: 400 });
 
-  const { data, error } = await supabaseAdmin
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
     .from("orders")
     .update({ status })
     .eq("id", id)

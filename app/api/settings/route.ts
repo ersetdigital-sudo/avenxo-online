@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export const revalidate = 30;
 
 export async function GET() {
-  const { data, error } = await supabaseAdmin
-    .from("site_settings")
-    .select("*");
+  const supabase = createServiceClient();
+  const { data, error } = await supabase.from("site_settings").select("*");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

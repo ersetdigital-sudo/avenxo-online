@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export const revalidate = 30;
 
 export async function GET() {
-  const { data: games, error } = await supabaseAdmin
+  const supabase = createServiceClient();
+
+  const { data: games, error } = await supabase
     .from("games")
     .select("*")
     .eq("is_active", true)
@@ -12,10 +14,9 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Fetch denominations for each game
   const gamesWithDenoms = await Promise.all(
     (games || []).map(async (game) => {
-      const { data: denoms } = await supabaseAdmin
+      const { data: denoms } = await supabase
         .from("denominations")
         .select("*")
         .eq("game_id", game.id)

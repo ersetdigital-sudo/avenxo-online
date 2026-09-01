@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export const revalidate = 30;
 
 export async function GET() {
-  const { data: methods, error } = await supabaseAdmin
+  const supabase = createServiceClient();
+  const { data: methods, error } = await supabase
     .from("payment_methods")
     .select("*")
     .eq("is_active", true)
@@ -12,7 +13,6 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Group by category
   const categoryMap = new Map<string, { key: string; label: string; methods: any[] }>();
 
   const CAT_LABELS: Record<string, string> = {

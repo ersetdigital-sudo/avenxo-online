@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
   const gameId = req.nextUrl.searchParams.get("game_id");
   if (!gameId) return NextResponse.json({ error: "game_id required" }, { status: 400 });
 
-  const { data, error } = await supabaseAdmin
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
     .from("denominations")
     .select("*")
     .eq("game_id", gameId)
@@ -17,7 +18,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { data, error } = await supabaseAdmin
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
     .from("denominations")
     .insert({
       game_id: body.game_id,
@@ -40,7 +42,8 @@ export async function PUT(req: NextRequest) {
   const { id, ...updates } = body;
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
-  const { data, error } = await supabaseAdmin
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
     .from("denominations")
     .update(updates)
     .eq("id", id)
@@ -55,7 +58,8 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
-  const { error } = await supabaseAdmin.from("denominations").delete().eq("id", id);
+  const supabase = createServiceClient();
+  const { error } = await supabase.from("denominations").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
