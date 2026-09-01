@@ -35,7 +35,6 @@ const rupiah = (n: number) => "Rp" + n.toLocaleString("id-ID");
 
 export default function AdminProdukPage() {
   const [games, setGames] = useState<Game[]>([]);
-  const [denomCounts, setDenomCounts] = useState<Record<string, { count: number; min: number; max: number }>>({});
   const [loading, setLoading] = useState(true);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -50,24 +49,7 @@ export default function AdminProdukPage() {
     setLoading(true);
     const res = await fetch("/api/admin/games");
     const data = await res.json();
-    const g = data.games || [];
-    setGames(g);
-    // Load denom counts for each game
-    const counts: Record<string, { count: number; min: number; max: number }> = {};
-    await Promise.all(
-      g.map(async (game: Game) => {
-        const r = await fetch(`/api/admin/denoms?game_id=${game.id}`);
-        const d = await r.json();
-        const list: Denom[] = d.denoms || [];
-        const prices = list.map((x) => x.price).filter((p) => p > 0);
-        counts[game.id] = {
-          count: list.length,
-          min: prices.length ? Math.min(...prices) : 0,
-          max: prices.length ? Math.max(...prices) : 0,
-        };
-      })
-    );
-    setDenomCounts(counts);
+    setGames(data.games || []);
     setLoading(false);
   }, []);
 
@@ -156,7 +138,6 @@ export default function AdminProdukPage() {
       setShowDenomForm(false);
       setEditingDenom(null);
       loadDenoms(denomGame!);
-      loadGames();
     } catch {
       flash("err", "Gagal menyimpan nominal.");
     }
@@ -174,7 +155,6 @@ export default function AdminProdukPage() {
       });
       flash("ok", "Nominal dihapus.");
       loadDenoms(denomGame!);
-      loadGames();
     } catch {
       flash("err", "Gagal menghapus nominal.");
     }
@@ -231,118 +211,83 @@ export default function AdminProdukPage() {
         <div className="text-center py-20" style={{ color: "var(--muted)" }}>Belum ada game.</div>
       ) : (
         <div className="space-y-3">
-          {games.map((g) => {
-            const dc = denomCounts[g.id];
-            return (
-              <div
-                key={g.id}
-                className="rounded-2xl p-4 sm:p-5"
-                style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--line)",
-                  opacity: g.is_active ? 1 : 0.55,
-                }}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  <img
-                    src={g.cover_url}
-                    alt={g.name}
-                    className="w-14 h-14 rounded-xl object-cover shrink-0"
-                    style={{ border: "1px solid var(--line)" }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-display font-bold text-[15px]">{g.name}</span>
-                      {g.badge && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md" style={{ background: "var(--lime)", color: "#0B1207" }}>
-                          {g.badge}
-                        </span>
-                      )}
-                      {!g.is_active && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md" style={{ background: "rgba(255,180,61,.2)", color: "var(--amber)" }}>
-                          NONAKTIF
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[12.5px] mt-0.5" style={{ color: "var(--muted)" }}>
-                      {g.publisher}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap shrink-0">
-                    <button
-                      onClick={() => loadDenoms(g)}
-                      className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
-                      style={{ background: "var(--surface-2)", border: "1px solid var(--line)", color: "var(--muted)" }}
-                    >
-                      Nominal
-                    </button>
-                    <button
-                      onClick={() => handleToggleActive(g)}
-                      className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
-                      style={{
-                        background: g.is_active ? "rgba(255,180,61,.12)" : "rgba(198,242,78,.12)",
-                        color: g.is_active ? "var(--amber)" : "var(--lime)",
-                        border: g.is_active ? "1px solid rgba(255,180,61,.25)" : "1px solid rgba(198,242,78,.25)",
-                      }}
-                    >
-                      {g.is_active ? "Nonaktifkan" : "Aktifkan"}
-                    </button>
-                    <button
-                      onClick={() => { setEditingGame(g); setShowForm(true); }}
-                      className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
-                      style={{ background: "var(--surface-2)", border: "1px solid var(--line)", color: "var(--text)" }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteGame(g.id)}
-                      className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
-                      style={{ background: "rgba(255,80,80,.1)", color: "#ff5050", border: "1px solid rgba(255,80,80,.2)" }}
-                    >
-                      Hapus
-                    </button>
-                  </div>
+          {games.map((g) => (
+            <div
+              key={g.id}
+              className="rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--line)",
+                opacity: g.is_active ? 1 : 0.55,
+              }}
+            >
+              <img
+                src={g.cover_url}
+                alt={g.name}
+                className="w-14 h-14 rounded-xl object-cover shrink-0"
+                style={{ border: "1px solid var(--line)" }}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-display font-bold text-[15px]">{g.name}</span>
+                  {g.badge && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md" style={{ background: "var(--lime)", color: "#0B1207" }}>
+                      {g.badge}
+                    </span>
+                  )}
+                  {!g.is_active && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md" style={{ background: "rgba(255,180,61,.2)", color: "var(--amber)" }}>
+                      NONAKTIF
+                    </span>
+                  )}
                 </div>
-
-                {dc && dc.count > 0 && (
-                  <div
-                    className="mt-3 pt-3 flex items-center gap-4 text-[12px]"
-                    style={{ borderTop: "1px solid var(--line)" }}
-                  >
-                    <span style={{ color: "var(--muted)" }}>
-                      <span className="font-semibold" style={{ color: "var(--text)" }}>{dc.count}</span> nominal
-                    </span>
-                    <span style={{ color: "var(--muted)" }}>·</span>
-                    <span style={{ color: "var(--muted)" }}>
-                      Mulai dari{" "}
-                      <span className="font-semibold" style={{ color: "var(--lime)" }}>{rupiah(dc.min)}</span>
-                    </span>
-                    {dc.max > dc.min && (
-                      <>
-                        <span style={{ color: "var(--muted)" }}>sampai</span>
-                        <span className="font-semibold" style={{ color: "var(--text)" }}>{rupiah(dc.max)}</span>
-                      </>
-                    )}
-                  </div>
-                )}
-                {dc && dc.count === 0 && (
-                  <div
-                    className="mt-3 pt-3 text-[12px]"
-                    style={{ borderTop: "1px solid var(--line)", color: "var(--amber)" }}
-                  >
-                    Belum ada nominal — tambahin dulu
-                  </div>
-                )}
+                <p className="text-[12.5px] mt-0.5" style={{ color: "var(--muted)" }}>
+                  {g.publisher} · Urutan: {g.sort_order}
+                </p>
               </div>
-            );
-          })}
+              <div className="flex items-center gap-2 flex-wrap shrink-0">
+                <button
+                  onClick={() => loadDenoms(g)}
+                  className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--line)", color: "var(--muted)" }}
+                >
+                  Nominal
+                </button>
+                <button
+                  onClick={() => handleToggleActive(g)}
+                  className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
+                  style={{
+                    background: g.is_active ? "rgba(255,180,61,.12)" : "rgba(198,242,78,.12)",
+                    color: g.is_active ? "var(--amber)" : "var(--lime)",
+                    border: g.is_active ? "1px solid rgba(255,180,61,.25)" : "1px solid rgba(198,242,78,.25)",
+                  }}
+                >
+                  {g.is_active ? "Nonaktifkan" : "Aktifkan"}
+                </button>
+                <button
+                  onClick={() => { setEditingGame(g); setShowForm(true); }}
+                  className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--line)", color: "var(--text)" }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteGame(g.id)}
+                  className="px-3 py-1.5 rounded-lg text-[12px] font-semibold"
+                  style={{ background: "rgba(255,80,80,.1)", color: "#ff5050", border: "1px solid rgba(255,80,80,.2)" }}
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {denomGame && !showDenomForm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
-          onClick={() => { setDenomGame(null); loadGames(); }}
+          onClick={() => setDenomGame(null)}
         >
           <div
             className="w-full max-w-[700px] max-h-[85vh] overflow-y-auto rounded-2xl p-6"
@@ -350,22 +295,17 @@ export default function AdminProdukPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="font-display font-bold text-[18px]">
-                  {denomGame.name}
-                </h2>
-                <p className="text-[12.5px] mt-0.5" style={{ color: "var(--muted)" }}>
-                  {denoms.length} nominal · Harga dari {denoms.length > 0 ? rupiah(Math.min(...denoms.map((d) => d.price))) : "-"}
-                </p>
-              </div>
+              <h2 className="font-display font-bold text-[18px]">
+                Nominal — {denomGame.name}
+              </h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { setEditingDenom(null); setShowDenomForm(true); }}
                   className="btn-primary px-4 py-2 text-[13px]"
                 >
-                  + Tambah Nominal
+                  + Tambah
                 </button>
-                <button onClick={() => { setDenomGame(null); loadGames(); }}>
+                <button onClick={() => setDenomGame(null)}>
                   <svg width="20" height="20" viewBox="0 0 24 24" stroke="var(--muted)" strokeWidth="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -374,15 +314,7 @@ export default function AdminProdukPage() {
               </div>
             </div>
             {denoms.length === 0 ? (
-              <div className="text-center py-10">
-                <p style={{ color: "var(--muted)" }}>Belum ada nominal.</p>
-                <button
-                  onClick={() => { setEditingDenom(null); setShowDenomForm(true); }}
-                  className="btn-primary px-5 py-2.5 text-[13px] mt-3"
-                >
-                  + Tambah Nominal Pertama
-                </button>
-              </div>
+              <p className="text-center py-10" style={{ color: "var(--muted)" }}>Belum ada nominal.</p>
             ) : (
               <div className="space-y-2">
                 {denoms.map((d) => (
@@ -395,23 +327,16 @@ export default function AdminProdukPage() {
                       opacity: d.is_active ? 1 : 0.5,
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <span className="font-display font-semibold text-[13.5px]">{d.amount}</span>
-                        {d.is_popular && (
-                          <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "var(--lime)", color: "#0B1207" }}>
-                            POPULER
-                          </span>
-                        )}
-                        {d.bonus && (
-                          <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(100,180,255,.15)", color: "#64b5ff" }}>
-                            +{d.bonus}
-                          </span>
-                        )}
-                        <span className="block text-[12px] mt-0.5" style={{ color: "var(--muted)" }}>
-                          {rupiah(d.price)}
+                    <div>
+                      <span className="font-display font-semibold text-[13.5px]">{d.amount}</span>
+                      {d.is_popular && (
+                        <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "var(--lime)", color: "#0B1207" }}>
+                          POPULER
                         </span>
-                      </div>
+                      )}
+                      <span className="block text-[12px] mt-0.5" style={{ color: "var(--muted)" }}>
+                        {rupiah(d.price)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
