@@ -73,7 +73,7 @@ export default function PembayaranPage({
     fetch("/api/payment-methods").then((r) => r.json()).then((d) => {
       for (const cat of d.categories || []) {
         for (const m of cat.methods || []) {
-          if (m.methodId === "qris" && m.qrImageUrl) {
+          if (m.label.toLowerCase() === "qris" && m.qrImageUrl) {
             setQrUrl(m.qrImageUrl);
           }
         }
@@ -246,8 +246,8 @@ export default function PembayaranPage({
                   className="w-10 h-10 rounded-lg grid place-items-center text-[18px] shrink-0"
                   style={{ background: "var(--lime)", color: "#0B1207" }}
                 >
-                  {order.catKey === "ewallet" && order.methodId === "qris" && "📱"}
-                  {order.catKey === "ewallet" && order.methodId !== "qris" && "💰"}
+                  {order.catKey === "ewallet" && order.methodLabel.toLowerCase() === "qris" && "📱"}
+                  {order.catKey === "ewallet" && order.methodLabel.toLowerCase() !== "qris" && "💰"}
                   {order.catKey === "va" && "🏦"}
                   {order.catKey === "bank" && "🏛️"}
                   {order.catKey === "pulsa" && "📶"}
@@ -255,7 +255,7 @@ export default function PembayaranPage({
                 <div>
                   <p className="font-display font-bold text-[14px]">{order.methodLabel}</p>
                   <p className="text-[12px] mt-0.5" style={{ color: "var(--muted)" }}>
-                    {order.catKey === "ewallet" && order.methodId === "qris"
+                    {order.catKey === "ewallet" && order.methodLabel.toLowerCase() === "qris"
                       ? "Scan QRIS di bawah"
                       : `Bayar via ${order.methodLabel}`}
                   </p>
@@ -332,11 +332,13 @@ function PaymentInstruction({
 }) {
   const [tab, setTab] = useState(methodId);
 
+  const isQRIS = methodLabel.toLowerCase() === "qris";
+
   if (catKey === "ewallet") {
     return (
       <div>
         {/* QRIS */}
-        {methodId === "qris" && (
+        {isQRIS && (
           <div className="text-center">
             <div
               className="inline-block rounded-2xl p-4"
@@ -388,7 +390,7 @@ function PaymentInstruction({
         )}
 
         {/* DANA / OVO / GoPay / ShopeePay */}
-        {methodId !== "qris" && (
+        {!isQRIS && (
           <div>
             <div
               className="rounded-xl p-4"

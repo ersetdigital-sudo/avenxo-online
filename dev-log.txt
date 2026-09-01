@@ -45,3 +45,22 @@
 ✓ Compiled in 23ms
 ✓ Compiled in 35ms
 ✓ Compiled in 25ms
+ GET /admin/login 200 in 1498ms (next.js: 1236ms, proxy.ts: 5ms, application-code: 257ms)
+ GET /admin/produk 200 in 514ms (next.js: 246ms, proxy.ts: 248ms, application-code: 21ms)
+ GET /admin/produk 200 in 165ms (next.js: 9ms, proxy.ts: 136ms, application-code: 20ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /api/admin/games 200 in 1087ms (next.js: 356ms, proxy.ts: 197ms, application-code: 534ms)
+ GET /api/admin/games 200 in 294ms (next.js: 3ms, proxy.ts: 130ms, application-code: 161ms)
+ GET /admin/pembayaran 200 in 478ms (next.js: 136ms, proxy.ts: 325ms, application-code: 17ms)
+ GET /api/admin/settings 200 in 791ms (next.js: 201ms, proxy.ts: 183ms, application-code: 408ms)
+ GET /api/admin/payment-methods 200 in 838ms (next.js: 153ms, proxy.ts: 136ms, application-code: 549ms)
+ GET /api/admin/settings 200 in 298ms (next.js: 3ms, proxy.ts: 136ms, application-code: 160ms)
+ GET /api/admin/payment-methods 200 in 461ms (next.js: 3ms, proxy.ts: 130ms, application-code: 328ms)
+[Upload API] Request received
+[Upload API] File: test-qr.png type: image/png size: 114 folder: payment-qr
+[Upload API] Cloudinary config OK: true
+[Upload API] Buffer created, size: 114
+[Upload API] Cloudinary success: https://res.cloudinary.com/dqjh7utdb/image/upload/v1788245973/avenxo/payment-qr/1788245970795-test-qr.png.png
+ POST /api/admin/upload 200 in 2.1s (next.js: 326ms, proxy.ts: 437ms, application-code: 1342ms)
+ GET /api/admin/payment-methods 200 in 426ms (next.js: 3ms, proxy.ts: 137ms, application-code: 285ms)
+ PUT /api/admin/payment-methods 200 in 455ms (next.js: 2ms, proxy.ts: 135ms, application-code: 318ms)
