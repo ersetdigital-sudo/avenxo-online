@@ -2,7 +2,7 @@
 
 import { useState, useMemo, use } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import { getAllGames, getGame, rupiah, type Game } from "@/lib/games";
 import SiteShell from "@/components/SiteShell";
 
@@ -28,6 +28,7 @@ export default function TopUpDetailPage({
 }
 
 function DetailClient({ game }: { game: Game }) {
+  const router = useRouter();
   const [userId, setUserId] = useState("");
   const [zoneId, setZoneId] = useState("");
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
@@ -69,10 +70,26 @@ function DetailClient({ game }: { game: Game }) {
     setAcc(null);
     if (!validateStep1()) return;
     if (!validateStep2()) return;
-    setAcc({
-      type: "success",
-      msg: `Pesanan ${denom!.amount} untuk ${game.name} (${methodLabel}) berhasil dibuat. Pembayaran akan diproses setelah konfirmasi.`,
-    });
+
+    const orderId = `AVX-${Date.now().toString(36).toUpperCase()}`;
+    const orderData = {
+      orderId,
+      gameSlug: game.slug,
+      gameName: game.name,
+      publisher: game.publisher,
+      cover: game.cover,
+      userId,
+      zoneId: zoneId || undefined,
+      denomAmount: denom!.amount,
+      denomId: denom!.id,
+      total: denom!.price,
+      methodId: payMethod,
+      methodLabel: methodLabel!,
+      catKey: payCat,
+      createdAt: new Date().toISOString(),
+    };
+
+    router.push(`/pembayaran/${orderId}?order=${encodeURIComponent(JSON.stringify(orderData))}`);
   };
 
   return (
