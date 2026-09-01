@@ -2,6 +2,16 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // Login page doesn't need auth check — skip Supabase call entirely
+  if (request.nextUrl.pathname === "/admin/login") {
+    return NextResponse.next();
+  }
+
+  // Only check auth for non-login admin routes
+  if (!request.nextUrl.pathname.startsWith("/admin")) {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -29,24 +39,8 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect admin routes
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    // Allow login page without auth
-    if (request.nextUrl.pathname === "/admin/login") {
-      if (user) {
-        return NextResponse.redirect(
-          new URL("/admin/produk", request.url)
-        );
-      }
-      return supabaseResponse;
-    }
-
-    // Redirect to login if not authenticated
-    if (!user) {
-      return NextResponse.redirect(
-        new URL("/admin/login", request.url)
-      );
-    }
+  if (!user) {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
   return supabaseResponse;

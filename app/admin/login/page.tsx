@@ -10,57 +10,30 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "auth" | "redirect">("idle");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    setPhase("auth");
 
-    // Timeout wrapper — Supabase free tier cold start can take up to 30s
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("timeout")), 25000)
-    );
+    const start = Date.now();
 
-    try {
-      const authPromise = supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      const { error: authError } = await Promise.race([
-        authPromise,
-        timeoutPromise,
-      ]);
+    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
-      if (authError) {
-        setError("Email atau password salah.");
-        setLoading(false);
-        setPhase("idle");
-        return;
-      }
-
-      setPhase("redirect");
-      router.push("/admin/produk");
-      router.refresh();
-    } catch (err: any) {
-      if (err.message === "timeout") {
-        setError("Koneksi lambat ke server autentikasi. Coba lagi dalam beberapa detik.");
-      } else {
-        setError("Terjadi kesalahan. Coba lagi.");
-      }
+    if (authError) {
+      setError("Email atau password salah.");
       setLoading(false);
-      setPhase("idle");
+      return;
     }
-  };
 
-  const phaseLabel =
-    phase === "auth"
-      ? "Memverifikasi..."
-      : phase === "redirect"
-      ? "Mengalihkan..."
-      : "Masuk";
+    router.push("/admin/produk");
+    router.refresh();
+  };
 
   return (
     <div
@@ -146,25 +119,6 @@ export default function AdminLoginPage() {
               }}
             >
               {error}
-            </div>
-          )}
-
-          {loading && (
-            <div
-              className="px-3.5 py-2.5 rounded-xl text-[13px]"
-              style={{
-                background: "rgba(198,242,78,.08)",
-                color: "var(--lime)",
-                border: "1px solid rgba(198,242,78,.2)",
-              }}
-            >
-              <span className="inline-flex items-center gap-2">
-                <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                </svg>
-                {phaseLabel} Server mungkin cold start, sabar ya ~10-20 detik...
-              </span>
             </div>
           )}
 
