@@ -42,12 +42,6 @@ function formatTime(s: number) {
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
-const PLACEHOLDER_QR =
-  "data:image/svg+xml;base64," +
-  btoa(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect fill="#fff" width="220" height="220" rx="12"/><g fill="#0e141b"><rect x="30" y="30" width="50" height="50" rx="6"/><rect x="140" y="30" width="50" height="50" rx="6"/><rect x="30" y="140" width="50" height="50" rx="6"/><rect x="40" y="40" width="30" height="30" rx="3" fill="#fff"/><rect x="150" y="40" width="30" height="30" rx="3" fill="#fff"/><rect x="40" y="150" width="30" height="30" rx="3" fill="#fff"/><rect x="46" y="46" width="18" height="18" rx="2"/><rect x="156" y="46" width="18" height="18" rx="2"/><rect x="46" y="156" width="18" height="18" rx="2"/><rect x="90" y="30" width="10" height="10"/><rect x="110" y="30" width="10" height="10"/><rect x="90" y="50" width="10" height="10"/><rect x="110" y="60" width="10" height="10"/><rect x="90" y="90" width="40" height="40" rx="4"/><rect x="100" y="100" width="20" height="20" rx="2" fill="#fff"/><rect x="90" y="140" width="10" height="10"/><rect x="110" y="150" width="10" height="10"/><rect x="140" y="90" width="10" height="10"/><rect x="160" y="100" width="10" height="10"/><rect x="140" y="140" width="10" height="10"/><rect x="160" y="160" width="10" height="10"/><rect x="180" y="140" width="10" height="10"/></g></svg>'
-  );
-
 function copyText(t: string) {
   navigator.clipboard.writeText(t).catch(() => {});
 }
@@ -340,15 +334,46 @@ function PaymentInstruction({
         {/* QRIS */}
         {isQRIS && (
           <div className="text-center">
-            <div
-              className="inline-block rounded-2xl p-4"
-              style={{ background: "#fff", padding: "16px" }}
-            >
-              <img src={qrUrl || PLACEHOLDER_QR} alt="QRIS Code" className="w-[200px] h-[200px]" />
-            </div>
-            <p className="mt-3 text-[13px]" style={{ color: "var(--muted)" }}>
-              Scan kode QR ini menggunakan aplikasi e-wallet atau mobile banking kamu.
-            </p>
+            {qrUrl ? (
+              <>
+                <div
+                  className="inline-block rounded-2xl p-4"
+                  style={{ background: "#fff", padding: "16px" }}
+                >
+                  <img
+                    src={qrUrl}
+                    alt="QRIS Code"
+                    className="w-[220px] h-[220px] object-contain"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                </div>
+                <p className="mt-3 text-[13px]" style={{ color: "var(--muted)" }}>
+                  Scan kode QR ini menggunakan aplikasi e-wallet atau mobile banking kamu.
+                </p>
+              </>
+            ) : (
+              <div
+                className="inline-block rounded-2xl p-8"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}
+              >
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="3" height="3"></rect>
+                  <line x1="21" y1="14" x2="21" y2="14.01"></line>
+                  <line x1="21" y1="21" x2="21" y2="21.01"></line>
+                  <line x1="14" y1="21" x2="14" y2="21.01"></line>
+                  <line x1="21" y1="7" x2="21" y2="7.01"></line>
+                </svg>
+                <p className="mt-3 text-[13px] font-semibold" style={{ color: "var(--amber)" }}>
+                  QR Code belum tersedia
+                </p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--muted)" }}>
+                  Hubungi admin untuk upload QRIS.
+                </p>
+              </div>
+            )}
             <div
               className="mt-4 rounded-xl p-3 flex items-center justify-between gap-3"
               style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}
