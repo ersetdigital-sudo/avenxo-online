@@ -1,8 +1,45 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-const slides = [
+type PromoSlide = {
+  promoOnly: true;
+  mobileImg: string;
+  desktopImg: string;
+  altMobile: string;
+  href: string;
+  isLink: true;
+};
+
+type LinkSlide = {
+  promoOnly?: false;
+  badge: { text: string; bg: string; color: string };
+  title: ReactNode;
+  desc: ReactNode;
+  cta: string;
+  mobileImg: string;
+  desktopImg: string;
+  altMobile: string;
+  href: string;
+  isLink: true;
+};
+
+type DivSlide = {
+  promoOnly?: false;
+  badge: { text: string; bg: string; color: string };
+  title: ReactNode;
+  desc: ReactNode;
+  cta: string;
+  img: string;
+  alt: string;
+  objectPos: string;
+  href: string;
+  isLink: false;
+};
+
+type Slide = PromoSlide | LinkSlide | DivSlide;
+
+const slides: Slide[] = [
   {
     badge: { text: "BEST SELLER MINGGU INI", bg: "rgba(198,242,78,.14)", color: "var(--lime)" },
     title: (
@@ -54,7 +91,7 @@ const slides = [
     isLink: true,
     promoOnly: true,
   },
-] as const;
+];
 
 export default function Hero() {
   const trackRef = useRef<HTMLDivElement>(null);
