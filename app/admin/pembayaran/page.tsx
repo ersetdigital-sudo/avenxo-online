@@ -130,29 +130,61 @@ export default function AdminPembayaranPage() {
   const handleUploadQR = async (m: PayMethod, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      flash("err", "File harus berupa gambar (JPG, PNG, dll).");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      flash("err", "Ukuran gambar maksimal 5MB.");
+      e.target.value = "";
+      return;
+    }
+
     setUploadingId(m.id);
     setMsg(null);
+    console.log("[QR Upload] Starting upload for:", m.label, "file:", file.name, "size:", file.size);
+
     const fd = new FormData();
     fd.append("file", file);
     fd.append("folder", "payment-qr");
     try {
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      console.log("[QR Upload] Upload response status:", res.status);
       const data = await res.json();
+      console.log("[QR Upload] Upload response data:", data);
+
+      if (!res.ok) {
+        flash("err", `Upload gagal: ${data.error || "Unknown error"}`);
+        setUploadingId(null);
+        e.target.value = "";
+        return;
+      }
+
       if (data.url) {
-        await fetch("/api/admin/payment-methods", {
+        console.log("[QR Upload] Upload success, saving URL to payment method...");
+        const putRes = await fetch("/api/admin/payment-methods", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: m.id, qr_image_url: data.url }),
         });
-        flash("ok", `QR ${m.label} berhasil diupload.`);
+        console.log("[QR Upload] Save to DB status:", putRes.status);
+        if (!putRes.ok) {
+          flash("err", "QR terupload tapi gagal disimpan ke database.");
+        } else {
+          flash("ok", `QR ${m.label} berhasil diupload.`);
+        }
         load();
       } else {
-        flash("err", "Gagal upload QR.");
+        flash("err", "Upload gagal: tidak ada URL dari server.");
       }
-    } catch {
-      flash("err", "Gagal upload QR.");
+    } catch (err) {
+      console.error("[QR Upload] Error:", err);
+      flash("err", `Upload gagal: ${err instanceof Error ? err.message : "Network error"}`);
     }
     setUploadingId(null);
+    e.target.value = "";
   };
 
   const grouped = CAT_ORDER.map((cat) => ({
@@ -296,14 +328,20 @@ export default function AdminPembayaranPage() {
                       <div className="flex items-center gap-2 shrink-0">
                         {m.label.toLowerCase().includes("qris") && (
                           <label
-                            className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer inline-flex items-center gap-1.5"
                             style={{
                               background: m.qr_image_url ? "rgba(198,242,78,.1)" : "var(--surface-2)",
                               border: m.qr_image_url ? "1px solid rgba(198,242,78,.25)" : "1px solid var(--line)",
                               color: m.qr_image_url ? "var(--lime)" : "var(--text)",
-                              opacity: uploadingId === m.id ? 0.5 : 1,
+                              opacity: uploadingId === m.id ? 0.6 : 1,
+                              pointerEvents: uploadingId === m.id ? "none" : "auto",
                             }}
                           >
+                            {uploadingId === m.id && (
+                              <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 2a10 10 0 0 1 10 10" />
+                              </svg>
+                            )}
                             {uploadingId === m.id ? "Uploading..." : m.qr_image_url ? "Ganti QR" : "Upload QR"}
                             <input type="file" accept="image/*" className="hidden" disabled={uploadingId === m.id} onChange={(e) => handleUploadQR(m, e)} />
                           </label>
