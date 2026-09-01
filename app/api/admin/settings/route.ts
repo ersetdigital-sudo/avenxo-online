@@ -24,3 +24,15 @@ export async function PUT(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ setting: data });
 }
+
+export async function DELETE(req: NextRequest) {
+  const body = await req.json();
+  const { key } = body;
+  if (!key) return NextResponse.json({ error: "key required" }, { status: 400 });
+
+  const supabase = createServiceClient();
+  const { error } = await supabase.from("site_settings").delete().eq("key", key);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}

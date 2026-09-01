@@ -106,7 +106,6 @@ CREATE TABLE IF NOT EXISTS site_settings (
 -- Default settings
 INSERT INTO site_settings (key, value) VALUES
   ('wa_number', '081234567890'),
-  ('wa_link', 'https://wa.me/6281234567890'),
   ('payment_timeout_minutes', '15'),
   ('cs_email', 'support@avenxoonline.net')
 ON CONFLICT (key) DO NOTHING;

@@ -116,6 +116,13 @@ export default function AdminPembayaranPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: editingSetting.key, value: settingVal }),
       });
+      if (editingSetting.key === "wa_number") {
+        await fetch("/api/admin/settings", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: "wa_link" }),
+        }).catch(() => {});
+      }
       flash("ok", "Setting disimpan.");
       setEditingSetting(null);
       load();
@@ -195,9 +202,16 @@ export default function AdminPembayaranPage() {
 
   const settingLabels: Record<string, string> = {
     wa_number: "Nomor WhatsApp CS",
-    wa_link: "Link WhatsApp",
     payment_timeout_minutes: "Batas Waktu Pembayaran (menit)",
     cs_email: "Email CS",
+  };
+
+  const visibleSettings = settings.filter((s) => s.key !== "wa_link");
+
+  const genWaLink = (num: string) => {
+    const cleaned = num.replace(/[^0-9]/g, "");
+    const normalized = cleaned.startsWith("0") ? "62" + cleaned.slice(1) : cleaned;
+    return `https://wa.me/${normalized}`;
   };
 
   return (
@@ -224,27 +238,36 @@ export default function AdminPembayaranPage() {
       >
         <h2 className="font-display font-bold text-[16px] mb-4">Setting Situs</h2>
         <div className="grid sm:grid-cols-2 gap-3">
-          {settings.map((s) => (
-            <div
-              key={s.key}
-              className="flex items-center justify-between px-4 py-3 rounded-xl"
-              style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}
-            >
-              <div className="min-w-0 flex-1 mr-3">
-                <span className="block text-[12px] font-semibold" style={{ color: "var(--muted)" }}>
-                  {settingLabels[s.key] || s.key}
-                </span>
-                <span className="block text-[13.5px] truncate mt-0.5" style={{ color: "var(--text)" }}>
-                  {s.value}
-                </span>
-              </div>
-              <button
-                onClick={() => { setEditingSetting(s); setSettingVal(s.value); }}
-                className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold shrink-0"
-                style={{ background: "var(--surface)", border: "1px solid var(--line)", color: "var(--text)" }}
+          {visibleSettings.map((s) => (
+            <div key={s.key}>
+              <div
+                className="flex items-center justify-between px-4 py-3 rounded-xl"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}
               >
-                Edit
-              </button>
+                <div className="min-w-0 flex-1 mr-3">
+                  <span className="block text-[12px] font-semibold" style={{ color: "var(--muted)" }}>
+                    {settingLabels[s.key] || s.key}
+                  </span>
+                  <span className="block text-[13.5px] truncate mt-0.5" style={{ color: "var(--text)" }}>
+                    {s.value}
+                  </span>
+                </div>
+                <button
+                  onClick={() => { setEditingSetting(s); setSettingVal(s.value); }}
+                  className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold shrink-0"
+                  style={{ background: "var(--surface)", border: "1px solid var(--line)", color: "var(--text)" }}
+                >
+                  Edit
+                </button>
+              </div>
+              {s.key === "wa_number" && (
+                <p className="mt-1.5 px-4 text-[12px]" style={{ color: "var(--muted)" }}>
+                  Link jadi:{" "}
+                  <span className="font-mono" style={{ color: "var(--lime)" }}>
+                    {genWaLink(s.value)}
+                  </span>
+                </p>
+              )}
             </div>
           ))}
         </div>

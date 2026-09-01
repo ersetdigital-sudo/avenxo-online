@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
 
@@ -152,6 +152,25 @@ function AccordionItem({
 export default function BantuanPage() {
   const [search, setSearch] = useState("");
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [waLink, setWaLink] = useState("https://wa.me/6281234567890");
+  const [waNumber, setWaNumber] = useState("0812-3456-7890");
+  const [csEmail, setCsEmail] = useState("support@avenxoonline.net");
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => {
+        const s = d.settings || {};
+        if (s.wa_number) {
+          const cleaned = s.wa_number.replace(/[^0-9]/g, "");
+          const normalized = cleaned.startsWith("0") ? "62" + cleaned.slice(1) : cleaned;
+          setWaLink(`https://wa.me/${normalized}`);
+          setWaNumber(s.wa_number.replace(/(\d{4})(\d{4})(\d{0,4})/, "$1-$2-$3").replace(/-$/, ""));
+        }
+        if (s.cs_email) setCsEmail(s.cs_email);
+      })
+      .catch(() => {});
+  }, []);
 
   const toggle = (key: string) => {
     setOpenItems((prev) => {
@@ -310,7 +329,7 @@ export default function BantuanPage() {
         <div className="grid sm:grid-cols-3 gap-3">
           {/* WhatsApp */}
           <a
-            href="https://wa.me/6281234567890"
+            href={waLink}
             target="_blank"
             rel="noopener noreferrer"
             className="group rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1"
@@ -350,7 +369,7 @@ export default function BantuanPage() {
 
           {/* Email */}
           <a
-            href="mailto:support@avenxoonline.net"
+            href={`mailto:${csEmail}`}
             className="group rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1"
             style={{
               background: "var(--surface)",
@@ -392,7 +411,7 @@ export default function BantuanPage() {
                 border: "1px solid rgba(198,242,78,.25)",
               }}
             >
-              support@avenxoonline.net
+              {csEmail}
             </span>
           </a>
 
