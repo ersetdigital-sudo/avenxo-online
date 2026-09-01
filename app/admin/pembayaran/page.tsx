@@ -294,18 +294,20 @@ export default function AdminPembayaranPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <label
-                          className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer"
-                          style={{
-                            background: m.qr_image_url ? "rgba(198,242,78,.1)" : "var(--surface-2)",
-                            border: m.qr_image_url ? "1px solid rgba(198,242,78,.25)" : "1px solid var(--line)",
-                            color: m.qr_image_url ? "var(--lime)" : "var(--text)",
-                            opacity: uploadingId === m.id ? 0.5 : 1,
-                          }}
-                        >
-                          {uploadingId === m.id ? "Uploading..." : m.qr_image_url ? "Ganti QR" : "Upload QR"}
-                          <input type="file" accept="image/*" className="hidden" disabled={uploadingId === m.id} onChange={(e) => handleUploadQR(m, e)} />
-                        </label>
+                        {m.label.toLowerCase().includes("qris") && (
+                          <label
+                            className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer"
+                            style={{
+                              background: m.qr_image_url ? "rgba(198,242,78,.1)" : "var(--surface-2)",
+                              border: m.qr_image_url ? "1px solid rgba(198,242,78,.25)" : "1px solid var(--line)",
+                              color: m.qr_image_url ? "var(--lime)" : "var(--text)",
+                              opacity: uploadingId === m.id ? 0.5 : 1,
+                            }}
+                          >
+                            {uploadingId === m.id ? "Uploading..." : m.qr_image_url ? "Ganti QR" : "Upload QR"}
+                            <input type="file" accept="image/*" className="hidden" disabled={uploadingId === m.id} onChange={(e) => handleUploadQR(m, e)} />
+                          </label>
+                        )}
                         <button
                           onClick={() => handleToggle(m)}
                           className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold"
