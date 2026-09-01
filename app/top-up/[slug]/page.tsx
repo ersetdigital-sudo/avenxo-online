@@ -77,7 +77,7 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
   const [zoneId, setZoneId] = useState("");
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [payCat, setPayCat] = useState("ewallet");
-  const [payMethod, setPayMethod] = useState("qris");
+  const [payMethod, setPayMethod] = useState<string | null>(null);
   const [promo, setPromo] = useState("");
   const [acc, setAcc] = useState<Acc | null>(null);
   const [payCategories, setPayCategories] = useState<any[]>([]);
@@ -85,7 +85,17 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
   useEffect(() => {
     fetch("/api/payment-methods")
       .then((r) => r.json())
-      .then((data) => setPayCategories(data.categories || []))
+      .then((data) => {
+        const cats = data.categories || [];
+        setPayCategories(cats);
+        const ewallet = cats.find((c: any) => c.key === "ewallet");
+        if (ewallet?.methods?.length) {
+          setPayMethod(ewallet.methods[0].id);
+        } else if (cats.length && cats[0].methods?.length) {
+          setPayCat(cats[0].key);
+          setPayMethod(cats[0].methods[0].id);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -122,6 +132,10 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
     setAcc(null);
     if (!validateStep1()) return;
     if (!validateStep2()) return;
+    if (!payMethod || !methodLabel) {
+      setAcc({ type: "error", msg: "Pilih metode pembayaran dulu." });
+      return;
+    }
 
     const orderId = `AVX-${Date.now().toString(36).toUpperCase()}`;
     const orderData = {
@@ -136,7 +150,7 @@ function DetailClient({ game, allGames }: { game: GameData; allGames: GameData[]
       denomId: denom!.id,
       total: denom!.price,
       methodId: payMethod,
-      methodLabel: methodLabel!,
+      methodLabel,
       catKey: payCat,
       createdAt: new Date().toISOString(),
     };

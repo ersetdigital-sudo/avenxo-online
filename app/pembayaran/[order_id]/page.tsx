@@ -240,8 +240,8 @@ export default function PembayaranPage({
                   className="w-10 h-10 rounded-lg grid place-items-center text-[18px] shrink-0"
                   style={{ background: "var(--lime)", color: "#0B1207" }}
                 >
-                  {order.catKey === "ewallet" && order.methodLabel.toLowerCase() === "qris" && "📱"}
-                  {order.catKey === "ewallet" && order.methodLabel.toLowerCase() !== "qris" && "💰"}
+                  {order.catKey === "ewallet" && (order.methodLabel || "").toLowerCase() === "qris" && "📱"}
+                  {order.catKey === "ewallet" && (order.methodLabel || "").toLowerCase() !== "qris" && "💰"}
                   {order.catKey === "va" && "🏦"}
                   {order.catKey === "bank" && "🏛️"}
                   {order.catKey === "pulsa" && "📶"}
@@ -249,7 +249,7 @@ export default function PembayaranPage({
                 <div>
                   <p className="font-display font-bold text-[14px]">{order.methodLabel}</p>
                   <p className="text-[12px] mt-0.5" style={{ color: "var(--muted)" }}>
-                    {order.catKey === "ewallet" && order.methodLabel.toLowerCase() === "qris"
+                    {order.catKey === "ewallet" && (order.methodLabel || "").toLowerCase() === "qris"
                       ? "Scan QRIS di bawah"
                       : `Bayar via ${order.methodLabel}`}
                   </p>
@@ -326,7 +326,7 @@ function PaymentInstruction({
 }) {
   const [tab, setTab] = useState(methodId);
 
-  const isQRIS = methodLabel.toLowerCase() === "qris";
+  const isQRIS = (methodLabel || "").toLowerCase() === "qris";
 
   if (catKey === "ewallet") {
     return (
