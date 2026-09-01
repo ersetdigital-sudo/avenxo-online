@@ -9,7 +9,7 @@ export default function Featured() {
           <img
             src="/images/8d346431-48aa-4414-9125-9d2d7e78fd44.png"
             alt="Mobile Legends — game best seller di AVENXO ONLINE"
-            className="w-full h-[260px] md:h-full object-cover"
+            className="w-full aspect-[3/4] sm:aspect-[4/5] md:aspect-auto md:h-full object-contain md:object-cover"
           />
           <div
             className="absolute inset-0 md:hidden"
