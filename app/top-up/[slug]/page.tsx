@@ -83,7 +83,7 @@ function DetailClient({ game }: { game: Game }) {
         style={{ paddingBottom: 0 }}
       >
         <div
-          className="relative rounded-[22px] overflow-hidden h-[180px] sm:h-[240px] md:h-[280px]"
+          className="relative rounded-[22px] overflow-hidden h-[220px] sm:h-[260px] md:h-[300px]"
           style={{ border: "1px solid var(--line)" }}
         >
           <img
