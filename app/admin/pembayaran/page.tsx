@@ -125,25 +125,34 @@ export default function AdminPembayaranPage() {
     setSaving(false);
   };
 
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+
   const handleUploadQR = async (m: PayMethod, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setSaving(true);
+    setUploadingId(m.id);
+    setMsg(null);
     const fd = new FormData();
     fd.append("file", file);
     fd.append("folder", "payment-qr");
-    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (data.url) {
-      await fetch("/api/admin/payment-methods", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: m.id, qr_image_url: data.url }),
-      });
-      flash("ok", "QR IS diupload.");
-      load();
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) {
+        await fetch("/api/admin/payment-methods", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: m.id, qr_image_url: data.url }),
+        });
+        flash("ok", `QR ${m.label} berhasil diupload.`);
+        load();
+      } else {
+        flash("err", "Gagal upload QR.");
+      }
+    } catch {
+      flash("err", "Gagal upload QR.");
     }
-    setSaving(false);
+    setUploadingId(null);
   };
 
   const grouped = CAT_ORDER.map((cat) => ({
@@ -285,13 +294,18 @@ export default function AdminPembayaranPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {cat === "ewallet" && m.label === "QRIS" && (
-                          <label className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer"
-                            style={{ background: "var(--surface-2)", border: "1px solid var(--line)", color: "var(--text)" }}>
-                            Upload QR
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadQR(m, e)} />
-                          </label>
-                        )}
+                        <label
+                          className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer"
+                          style={{
+                            background: m.qr_image_url ? "rgba(198,242,78,.1)" : "var(--surface-2)",
+                            border: m.qr_image_url ? "1px solid rgba(198,242,78,.25)" : "1px solid var(--line)",
+                            color: m.qr_image_url ? "var(--lime)" : "var(--text)",
+                            opacity: uploadingId === m.id ? 0.5 : 1,
+                          }}
+                        >
+                          {uploadingId === m.id ? "Uploading..." : m.qr_image_url ? "Ganti QR" : "Upload QR"}
+                          <input type="file" accept="image/*" className="hidden" disabled={uploadingId === m.id} onChange={(e) => handleUploadQR(m, e)} />
+                        </label>
                         <button
                           onClick={() => handleToggle(m)}
                           className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold"
