@@ -93,15 +93,6 @@ export default function Header() {
             />
           </form>
           <div className="flex items-center gap-2 ml-auto">
-            <a
-              href="#topup"
-              className="hidden sm:block btn-ghost px-4 py-2 text-[13.5px]"
-            >
-              Masuk
-            </a>
-            <a href="#topup" className="btn-primary px-4 py-2 text-[13.5px]">
-              Daftar
-            </a>
             <button
               onClick={() => setOpen((v) => !v)}
               className="lg:hidden grid place-items-center w-9 h-9 rounded-xl"
@@ -164,6 +155,10 @@ export default function Header() {
         >
           <a
             href="#beranda"
+            onClick={() => {
+              setOpen(false);
+              document.getElementById("beranda")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="px-3 py-2.5 rounded-xl"
             style={{ background: "var(--surface-2)" }}
           >
@@ -171,6 +166,10 @@ export default function Header() {
           </a>
           <a
             href="#topup"
+            onClick={() => {
+              setOpen(false);
+              document.getElementById("topup")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="px-3 py-2.5 rounded-xl"
             style={{ background: "var(--surface-2)" }}
           >
@@ -178,6 +177,10 @@ export default function Header() {
           </a>
           <a
             href="#bantuan"
+            onClick={() => {
+              setOpen(false);
+              document.getElementById("bantuan")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="px-3 py-2.5 rounded-xl"
             style={{ background: "var(--surface-2)" }}
           >
