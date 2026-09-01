@@ -4,7 +4,6 @@ export default function CaraTopUp() {
     "Masukkan User ID",
     "Pilih Nominal",
     "Bayar",
-    "Selesai",
   ];
 
   return (
@@ -16,7 +15,7 @@ export default function CaraTopUp() {
         {steps.map((s, i) => (
           <div
             key={s}
-            className={`rounded-2xl p-5 ${i === 4 ? "md:col-span-2" : ""}`}
+            className="rounded-2xl p-5"
             style={{
               background: "var(--surface)",
               border: "1px solid var(--line)",
