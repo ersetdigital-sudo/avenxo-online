@@ -215,7 +215,7 @@ function DetailClient({ game }: { game: Game }) {
 
             {/* STEP 3 */}
             <StepCard idx={2} title={steps[2]}>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2.5">
                 {game.paymentCategories.map((c) => (
                   <button
                     key={c.key}
