@@ -414,12 +414,14 @@ function DetailClient({ game }: { game: Game }) {
                 </div>
               </div>
 
-              <button
-                onClick={buy}
-                className="btn-primary w-full mt-5 py-3.5 text-[14.5px]"
-              >
-                Beli Sekarang
-              </button>
+              <div className="sticky-buy-bar">
+                <button
+                  onClick={buy}
+                  className="btn-primary w-full py-3.5 text-[14.5px]"
+                >
+                  Beli Sekarang
+                </button>
+              </div>
               <Link
                 href="/#topup"
                 className="btn-ghost block w-full mt-2 py-3 text-center text-[13.5px]"
@@ -555,6 +557,7 @@ function DetailClient({ game }: { game: Game }) {
             ))}
         </div>
       </section>
+      <div className="h-0 sm:h-0 pb-24 sm:pb-0" />
     </SiteShell>
   );
 }

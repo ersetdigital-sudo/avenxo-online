@@ -453,6 +453,10 @@ h3,
 }
 
 /* payment */
+.sticky-buy-bar {
+  margin-top: 20px;
+}
+
 .pay-tab {
   font-family: "Sora";
   font-weight: 600;
@@ -518,5 +522,23 @@ h3,
     padding: 0 10px;
     font-size: 12.5px;
     text-align: center;
+  }
+}
+
+/* sticky buy button — mobile only (<640px) */
+@media (max-width: 639.98px) {
+  .sticky-buy-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(8, 12, 17, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    margin-top: 0;
   }
 }
